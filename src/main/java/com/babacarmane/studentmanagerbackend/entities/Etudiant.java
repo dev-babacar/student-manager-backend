@@ -1,4 +1,4 @@
-package com.babacarmane.studentmanagerbackend.model;
+package com.babacarmane.studentmanagerbackend.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Email;
 import lombok.*;
 import jakarta.validation.constraints.NotBlank;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -43,5 +44,5 @@ public class Etudiant {
     @JsonIgnore
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
-    private List<Note> notes;
+    private List<Note> notes = new ArrayList<>();
 }
