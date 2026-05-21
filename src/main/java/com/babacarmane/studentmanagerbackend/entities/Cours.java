@@ -1,11 +1,11 @@
-package com.babacarmane.studentmanagerbackend.model;
+package com.babacarmane.studentmanagerbackend.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
-import org.hibernate.annotations.Cascade;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -38,5 +38,5 @@ public class Cours {
     @JsonIgnore
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
-    private List<Note> notes;
+    private List<Note> notes = new ArrayList<>();
 }
