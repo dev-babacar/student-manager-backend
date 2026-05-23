@@ -7,6 +7,8 @@ import com.babacarmane.studentmanagerbackend.exception.CoursNotFoundException;
 import com.babacarmane.studentmanagerbackend.mapper.CoursMapper;
 import com.babacarmane.studentmanagerbackend.repository.CoursRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,11 +22,9 @@ public class CoursService {
     // ↑ NOUVEAU
 
 
-    public List<CoursResponseDTO> getAllCours() {
-        List<Cours> cours = coursRepository.findAll();
-        return coursMapper.toResponseDTOList(cours);
-        // ↑ AVANT : retournait List<Cours>
-        //   APRÈS : retourne List<CoursResponseDTO>
+    public Page<CoursResponseDTO> getAllCours(Pageable pageable) {
+        return coursRepository.findAll(pageable)
+                .map(coursMapper::toResponseDTO);
     }
 
 
