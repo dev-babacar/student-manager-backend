@@ -7,6 +7,8 @@ import com.babacarmane.studentmanagerbackend.exception.EtudiantNotFoundException
 import com.babacarmane.studentmanagerbackend.mapper.EtudiantMapper;
 import com.babacarmane.studentmanagerbackend.repository.EtudiantRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,12 +22,30 @@ public class EtudiantService {
     // ↑ NOUVEAU — injecté grâce à @Component sur EtudiantMapper
 
 
-    public List<EtudiantResponseDTO> getAllEtudiants() {
-        List<Etudiant> etudiants = etudiantRepository.findAll();
-        return etudiantMapper.toResponseDTOList(etudiants);
-        // ↑ AVANT : retournait List<Etudiant> directement
-        //   APRÈS : passe par le Mapper → List<EtudiantResponseDTO>
+    public Page<EtudiantResponseDTO> getAllEtudiants(Pageable pageable) {
+        //     ↑ Page<T> = une page de résultats
+        //                 contient les données + métadonnées
+        //       Pageable = numéro de page, taille, tri
+
+        Page<Etudiant> page = etudiantRepository.findAll(pageable);
+        //                                               ↑ Spring fait le SQL automatiquement
+        //   SELECT * FROM etudiants LIMIT 10 OFFSET 0
+
+        return page.map(etudiantMapper::toResponseDTO);
+        //           ↑ convertit chaque Etudiant en EtudiantResponseDTO
+        //             en gardant la structure Page<T>
     }
+
+    public List<EtudiantResponseDTO> getAllEtudiantsList() {
+        return etudiantMapper.toResponseDTOList(etudiantRepository.findAll());
+    }
+
+//    public List<EtudiantResponseDTO> getAllEtudiants() {
+//        List<Etudiant> etudiants = etudiantRepository.findAll();
+//        return etudiantMapper.toResponseDTOList(etudiants);
+//        // ↑ AVANT : retournait List<Etudiant> directement
+//        //   APRÈS : passe par le Mapper → List<EtudiantResponseDTO>
+//    }
 
 
     public EtudiantResponseDTO getEtudiantById(Long id) {

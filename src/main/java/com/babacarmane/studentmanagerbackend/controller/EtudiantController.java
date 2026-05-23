@@ -12,6 +12,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,15 +33,20 @@ public class EtudiantController {
 
 
     @GetMapping
-    @Operation(
-            summary = "Lister tous les étudiants",
-            description = "Retourne la liste complète de tous les étudiants"
-    )
-    @ApiResponse(responseCode = "200", description = "Liste retournée avec succès")
-    public ResponseEntity<List<EtudiantResponseDTO>> getAll() {
-        // ↑ AVANT : ResponseEntity<List<Etudiant>>
-        // ↑ APRÈS : ResponseEntity<List<EtudiantResponseDTO>>
-        return ResponseEntity.ok(etudiantService.getAllEtudiants());
+    @Operation(summary = "Lister les étudiants avec pagination et tri")
+    public ResponseEntity<Page<EtudiantResponseDTO>> getAll(
+            @PageableDefault(
+                    page = 0,      // page par défaut = première page
+                    size = 10,     // 10 éléments par page par défaut
+                    sort = "nom",  // trié par nom par défaut
+                    direction = Sort.Direction.ASC
+            )
+            Pageable pageable) {
+        // ↑ Spring lit automatiquement les paramètres de l'URL :
+        //   ?page=0&size=10&sort=nom,asc
+        //   et construit l'objet Pageable tout seul
+
+        return ResponseEntity.ok(etudiantService.getAllEtudiants(pageable));
     }
 
 
