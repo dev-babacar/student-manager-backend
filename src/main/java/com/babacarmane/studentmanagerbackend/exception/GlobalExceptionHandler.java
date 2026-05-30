@@ -3,6 +3,7 @@ package com.babacarmane.studentmanagerbackend.exception;
 import io.swagger.v3.oas.annotations.Hidden;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -97,5 +98,29 @@ public class GlobalExceptionHandler {
                 //   ça pourrait révéler des détails sensibles
         );
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+    }
+
+
+    // ─────────────────────────────────────
+    // 401 — Mauvais email ou mot de passe
+    // ─────────────────────────────────────
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidCredentials(
+            InvalidCredentialsException ex) {
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(new ErrorResponse(401, ex.getMessage()));
+    }
+
+    // ─────────────────────────────────────
+    // 401 — BadCredentialsException de Spring
+    //       filet de sécurité si elle remonte quand même
+    // ─────────────────────────────────────
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ErrorResponse> handleBadCredentials(
+            BadCredentialsException ex) {
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(new ErrorResponse(401, "Email ou mot de passe incorrect"));
     }
 }
