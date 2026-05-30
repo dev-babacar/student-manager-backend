@@ -12,6 +12,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,10 +36,10 @@ public class CoursController {
             description = "Retourne la liste complète de tous les cours"
     )
     @ApiResponse(responseCode = "200", description = "Liste retournée avec succès")
-    public ResponseEntity<List<CoursResponseDTO>> getAllCours() {
-        // ↑ AVANT : ResponseEntity<List<Cours>>
-        // ↑ APRÈS : ResponseEntity<List<CoursResponseDTO>>
-        return ResponseEntity.ok(coursService.getAllCours());
+    public ResponseEntity<Page<CoursResponseDTO>> getAllCours(
+            @PageableDefault(page = 0, size = 10, sort = "nom")
+            Pageable pageable) {
+        return ResponseEntity.ok(coursService.getAllCours(pageable));
     }
 
 

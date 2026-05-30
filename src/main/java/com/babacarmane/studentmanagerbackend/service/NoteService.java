@@ -14,6 +14,8 @@ import com.babacarmane.studentmanagerbackend.repository.EtudiantRepository;
 import com.babacarmane.studentmanagerbackend.repository.NoteRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -29,11 +31,9 @@ public class NoteService {
     // ↑ NOUVEAU — injecté grâce à @Component sur NoteMapper
 
 
-    public List<NoteResponseDTO> getAllNotes() {
-        List<Note> notes = noteRepository.findAll();
-        return noteMapper.toResponseDTOList(notes);
-        // ↑ AVANT : retournait List<Note>
-        //   APRÈS : retourne List<NoteResponseDTO>
+    public Page<NoteResponseDTO> getAllNotes(Pageable pageable) {
+        return noteRepository.findAll(pageable)
+                .map(noteMapper::toResponseDTO);
     }
 
 

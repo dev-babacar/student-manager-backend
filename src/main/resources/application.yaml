@@ -23,3 +23,10 @@ springdoc:
   swagger-ui:
     path: /swagger-ui.html
   packages-to-scan: com.babacarmane.studentmanagerbackend
+
+jwt:
+  secret: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+  # ↑ clé secrète Base64 — minimum 256 bits pour HS256
+  #   génère la tienne avec : openssl rand -hex 32
+  expiration: 86400000
+  # ↑ 24 heures en millisecondes
