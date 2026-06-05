@@ -33,12 +33,15 @@ public class AuthService {
             throw new RuntimeException("Email déjà utilisé");
         }
 
+        // Premier inscrit = ADMIN, tous les autres = USER
+        Role role = userRepository.count() == 0 ? Role.ADMIN : Role.USER;
+
         User user = User.builder()
                 .nom(dto.getNom())
                 .email(dto.getEmail())
                 .password(passwordEncoder.encode(dto.getPassword()))
                 // ↑ encode le mot de passe avant de le stocker
-                .role(Role.USER)
+                .role(role)
                 .build();
 
         userRepository.save(user);
