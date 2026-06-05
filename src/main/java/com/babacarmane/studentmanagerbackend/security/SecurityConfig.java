@@ -3,6 +3,7 @@ package com.babacarmane.studentmanagerbackend.security;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -26,30 +27,40 @@ public class SecurityConfig {
 
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http)
+            throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
-                // ↑ désactivé car on utilise JWT (pas de session)
-
                 .authorizeHttpRequests(auth -> auth
-                        // Endpoints publics — pas besoin de token
+
+                        // Public — pas de token requis
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/api-docs/**").permitAll()
 
-                        // Tout le reste nécessite un token valide
+                        // ADMIN seulement
+                        .requestMatchers(HttpMethod.DELETE, "/api/**")
+                        .hasRole("ADMIN")
+                        .requestMatchers("/api/users/**")
+                        .hasRole("ADMIN")
+
+                        // USER et ADMIN — lecture
+                        .requestMatchers(HttpMethod.GET, "/api/**")
+                        .hasAnyRole("USER", "ADMIN")
+
+                        // USER et ADMIN — création et modification
+                        .requestMatchers(HttpMethod.POST, "/api/**")
+                        .hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/**")
+                        .hasAnyRole("USER", "ADMIN")
+
+                        // Tout le reste = authentifié
                         .anyRequest().authenticated()
                 )
-
                 .sessionManagement(session -> session
-                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-
-
-                        // ↑ pas de session HTTP — chaque requête
-                        //   doit avoir son token JWT
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-
-                // Ajoute le JwtFilter AVANT le filtre d'auth de Spring
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtFilter,
+                        UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -76,8 +87,5 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
-        // ↑ hash les mots de passe
-        //   "password123" → "$2a$10$xxx..." en base
-        //   jamais stocker un mot de passe en clair
     }
 }
